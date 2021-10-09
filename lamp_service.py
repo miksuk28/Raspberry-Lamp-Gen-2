@@ -1,7 +1,9 @@
 from flask import Flask, json, request, jsonify, abort
+from threading import Timer, Thread
 import operations as ops
 
 pins = {"r": 17, "g": 22, "b": 24, "btn": 27}
+current_state = {"r": 0, "g": 0, "b": 0}
 
 def setup():
     import pigpio
@@ -10,9 +12,25 @@ def setup():
     return pi
 
 def _set_led(r, g, b):
+    current_state = {"r": r, "g": g, "b": b}
+
     pi.set_PWM_dutycycle(pins["r"], r)
     pi.set_PWM_dutycycle(pins["g"], g)
     pi.set_PWM_dutycycle(pins["b"], b)
+
+
+def _fade_thread(step_time):
+    fade = Timer(step_time, _fade_thread)
+
+def fade(start, end, time, fade_time, steps=255):
+    r_step = (end["red"] - start["red"]) / steps
+    g_step = (end["green"] - start["green"]) / steps
+    b_steps = (end["blue"] - start["blue"]) / steps
+
+    step_time = fade_time / steps
+
+
+
 
 app = Flask(__name__)
 
