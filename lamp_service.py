@@ -1,4 +1,5 @@
 from flask import Flask, json, request, jsonify, abort
+import operations as ops
 
 pins = {"r": 17, "g": 22, "b": 24, "btn": 27}
 
@@ -19,9 +20,14 @@ app = Flask(__name__)
 def set_led():
     if request.method == "POST":
         data = request.get_json()
-        _set_led(data["red"], data["green"], data["blue"])
+        
+        if ops.validate(("r", "g", "b"), data):
+            _set_led(data["red"], data["green"], data["blue"])
 
-        return jsonify({"message": "LEDs changed"})
+            return jsonify({"message": "LEDs changed"})
+
+        else:
+            abort(400, "Bad params")
     else:
         abort(405)
 
