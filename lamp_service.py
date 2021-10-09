@@ -21,7 +21,7 @@ def set_led():
     if request.method == "POST":
         data = request.get_json()
         
-        if ops.validate(("r", "g", "b"), data):
+        if ops.validate(("red", "green", "blue"), data):
             _set_led(data["red"], data["green"], data["blue"])
 
             return jsonify({"message": "LEDs changed"})
