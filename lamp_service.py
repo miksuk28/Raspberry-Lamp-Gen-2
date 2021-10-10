@@ -54,7 +54,7 @@ app = Flask(__name__)
 
 
 @app.route("/set_led", methods=["POST"])
-def set_led():
+def set_led_endpoint():
     if request.method == "POST":
         data = request.get_json()
 
