@@ -7,7 +7,7 @@ import time
 
 pins = {"r": 17, "g": 22, "b": 24, "btn": 27}
 current_state = [0, 0, 0]
-
+lamp_thread_busy = False
 
 def setup():
     import pigpio
@@ -31,6 +31,8 @@ def set_led(r, g, b):
         
 
 def fade(start, end, fade_time, steps=255):
+    lamp_thread_busy = True
+
     if start == end:
         return
 
@@ -56,16 +58,15 @@ def fade(start, end, fade_time, steps=255):
 
         time.sleep(step_time)
 
+    lamp_thread_busy = False
+
 
 def create_fade_thread(start, end, fade_time, steps=255):
-    if "fade_thread" in locals():
-        print("Fade thread is in locals")
-        if fade_thread.is_alive():
-            print("Thread is alive")
-            return False
-            
-    fade_thread = Thread(target=fade, args=(start, (end[0], end[1], end[2]), fade_time, steps))
-    fade_thread.start()
+    if not lamp_thread_busy:
+        fade_thread = Thread(target=fade, args=(start, (end[0], end[1], end[2]), fade_time, steps))
+        fade_thread.start()
+    else:
+        return False
 
 app = Flask(__name__)
 
@@ -79,9 +80,10 @@ def set_led_endpoint():
             #_set_led(data["red"], data["green"], data["blue"])
             #fade(current_state, (data["red"], data["green"], data["blue"]), data["fade_time"])
 
-            create_fade_thread(current_state, (data["red"], data["green"], data["blue"]), data["fade_time"])
-
-            return jsonify({"message": "LEDs changed"})
+            if create_fade_thread(current_state, (data["red"], data["green"], data["blue"]), data["fade_time"]):
+                return jsonify({"message": "LEDs changed"})
+            else:
+                abort(503, {"message": "Fading already in progress"})
 
         else:
             abort(400, "Bad params")
