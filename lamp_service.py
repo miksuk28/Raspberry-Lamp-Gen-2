@@ -58,6 +58,12 @@ def fade(start, end, fade_time, steps=255):
 
 
 def create_fade_thread(start, end, fade_time, steps=255):
+    if "fade_thread" in locals():
+        print("Fade thread is in locals")
+        if fade_thread.is_alive():
+            print("Thread is alive")
+            return False
+            
     fade_thread = Thread(target=fade, args=(start, (end[0], end[1], end[2]), fade_time, steps))
     fade_thread.start()
 
