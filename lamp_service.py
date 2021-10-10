@@ -26,7 +26,7 @@ def _set_led(r, g, b):
 def fade(start, end, fade_time, steps=255):
     r_step = (end["red"] - start["red"]) / steps
     g_step = (end["green"] - start["green"]) / steps
-    b_steps = (end["blue"] - start["blue"]) / steps
+    b_step = (end["blue"] - start["blue"]) / steps
 
     step_time = fade_time / steps
 
