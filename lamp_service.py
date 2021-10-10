@@ -60,7 +60,7 @@ def set_led_endpoint():
 
         if ops.validate(("red", "green", "blue"), data):
             #_set_led(data["red"], data["green"], data["blue"])
-            fade()
+            fade(current_state, (data["red"], data["green"], data["blue"]), 1)
 
             return jsonify({"message": "LEDs changed"})
 
