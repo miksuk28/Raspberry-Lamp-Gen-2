@@ -23,7 +23,7 @@ def _set_led(r, g, b):
     pi.set_PWM_dutycycle(pins["b"], b)
 
 
-def fade(start, end, time, fade_time, steps=255):
+def fade(start, end, fade_time, steps=255):
     r_step = (end["red"] - start["red"]) / steps
     g_step = (end["green"] - start["green"]) / steps
     b_steps = (end["blue"] - start["blue"]) / steps
@@ -36,7 +36,7 @@ def fade(start, end, time, fade_time, steps=255):
         _b = start["blue"] + (b_step * i)
 
         _set_led(_r, _g, _b)
-        
+
         time.sleep(step_time)
         
 
