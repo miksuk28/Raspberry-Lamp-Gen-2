@@ -2,8 +2,11 @@ from flask import Flask, json, request, jsonify, abort
 from threading import Timer, Thread
 import operations as ops
 
+import time
+
 pins = {"r": 17, "g": 22, "b": 24, "btn": 27}
-current_state = {"r": 0, "g": 0, "b": 0}
+current_state = {"red": 0, "green": 0, "blue": 0}
+
 
 def setup():
     import pigpio
@@ -11,16 +14,14 @@ def setup():
 
     return pi
 
+
 def _set_led(r, g, b):
-    current_state = {"r": r, "g": g, "b": b}
+    current_state = {"red": r, "green": g, "blue": b}
 
     pi.set_PWM_dutycycle(pins["r"], r)
     pi.set_PWM_dutycycle(pins["g"], g)
     pi.set_PWM_dutycycle(pins["b"], b)
 
-
-def _fade_thread(step_time):
-    fade = Timer(step_time, _fade_thread)
 
 def fade(start, end, time, fade_time, steps=255):
     r_step = (end["red"] - start["red"]) / steps
@@ -29,18 +30,27 @@ def fade(start, end, time, fade_time, steps=255):
 
     step_time = fade_time / steps
 
+    for i in range(steps):
+        _r = start["red"] + (r_step * i)
+        _g = start["green"] + (g_step * i)
+        _b = start["blue"] + (b_step * i)
 
-
+        _set_led(_r, _g, _b)
+        
+        time.sleep(step_time)
+        
 
 app = Flask(__name__)
+
 
 @app.route("/set_led", methods=["POST"])
 def set_led():
     if request.method == "POST":
         data = request.get_json()
-        
+
         if ops.validate(("red", "green", "blue"), data):
-            _set_led(data["red"], data["green"], data["blue"])
+            #_set_led(data["red"], data["green"], data["blue"])
+            fade(current_state, {"red": data["red"], "green": data["green"], "blue": data["blue"]}, 1)
 
             return jsonify({"message": "LEDs changed"})
 
