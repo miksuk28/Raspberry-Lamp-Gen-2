@@ -41,6 +41,7 @@ def fade(start, end, fade_time, steps=255):
     step_time = fade_time / steps
 
     for i in range(steps):
+        print(f"{i}\t{r}\t{g}\t{b}")
         set_led(r, g, b)
 
         r += step_R
