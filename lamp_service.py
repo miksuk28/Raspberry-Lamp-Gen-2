@@ -33,9 +33,9 @@ def _set_led(r, g, b):
 
     _change_state(r, g, b)
 
-    pi.set_PWM_dutycycle(pins["r"], r)
-    pi.set_PWM_dutycycle(pins["g"], g)
-    pi.set_PWM_dutycycle(pins["b"], b)
+    pi.set_PWM_dutycycle(pins["r"], colors[0])
+    pi.set_PWM_dutycycle(pins["g"], colors[1])
+    pi.set_PWM_dutycycle(pins["b"], colors[2])
 
 
 def fade(start, end, fade_time, steps=255):
