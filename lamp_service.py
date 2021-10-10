@@ -47,9 +47,11 @@ def fade(start, end, fade_time, steps=255):
     step_time = fade_time / steps
 
     print(f"Step time: {step_time}")
+    print(f"Locked fading: {lamp_thread_busy}")
+    print(f"Fading: ({start[0]}, {start[1]}, {start[2]}) -> ({end[0]}, {end[1]}, {end[2]})")
 
     for i in range(steps):
-        print(f"{i}\t{r}\t{g}\t{b}")
+        #print(f"{i}\t{r}\t{g}\t{b}")
         set_led(r, g, b)
 
         r += step_R
@@ -58,6 +60,7 @@ def fade(start, end, fade_time, steps=255):
 
         time.sleep(step_time)
 
+    print("Fading finished")
     lamp_thread_busy = False
 
 
