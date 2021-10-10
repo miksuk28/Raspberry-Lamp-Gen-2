@@ -22,6 +22,15 @@ def _change_state(r, g, b):
 
 
 def _set_led(r, g, b):
+    colors = (r, g, b)
+
+    for i in len(colors):
+        if colors[i] > 255:
+            colors[i] = 255
+        elif colors[i] < 0:
+            colors[i] = 0
+
+
     _change_state(r, g, b)
 
     pi.set_PWM_dutycycle(pins["r"], r)
