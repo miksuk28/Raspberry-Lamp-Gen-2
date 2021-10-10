@@ -65,6 +65,8 @@ def create_fade_thread(start, end, fade_time, steps=255):
     if not lamp_thread_busy:
         fade_thread = Thread(target=fade, args=(start, (end[0], end[1], end[2]), fade_time, steps))
         fade_thread.start()
+
+        return True
     else:
         return False
 
