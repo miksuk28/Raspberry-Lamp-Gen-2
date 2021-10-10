@@ -9,7 +9,7 @@ current_state = {"red": 0, "green": 0, "blue": 0}
 
 
 def setup():
-    import +
+    import pigpio
     pi = pigpio.pi()
 
     return pi
