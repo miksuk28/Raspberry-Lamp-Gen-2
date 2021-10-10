@@ -31,7 +31,7 @@ def _set_led(r, g, b):
             colors[i] = 0
 
 
-    _change_state(r, g, b)
+    _change_state(colors["r"], colors["g"], colors["b"])
 
     pi.set_PWM_dutycycle(pins["r"], colors[0])
     pi.set_PWM_dutycycle(pins["g"], colors[1])
