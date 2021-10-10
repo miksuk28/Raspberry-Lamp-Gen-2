@@ -1,3 +1,4 @@
+import threading
 from flask import Flask, json, request, jsonify, abort
 from threading import Timer, Thread
 import operations as ops
@@ -66,7 +67,10 @@ def set_led_endpoint():
 
         if ops.validate(("red", "green", "blue", "fade_time"), data):
             #_set_led(data["red"], data["green"], data["blue"])
-            fade(current_state, (data["red"], data["green"], data["blue"]), data["fade_time"])
+            #fade(current_state, (data["red"], data["green"], data["blue"]), data["fade_time"])
+
+            fade_thread = Thread(target=fade, args=(current_state, (data["red"], data["green"], data["blue"]), data["fade_time"],))
+            fade_thread.start()
 
             return jsonify({"message": "LEDs changed"})
 
