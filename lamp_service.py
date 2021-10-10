@@ -96,6 +96,13 @@ def set_led_endpoint():
     else:
         abort(405)
 
+@app.route("/get_colour", methods=["GET"])
+def get_colour():
+    if request.method == "GET":
+        data = {"red": current_state[0], "green": current_state[1], "blue": current_state[2]}
+        return jsonify(data), 200
+    else:
+        abort(405)
 
 if __name__ == "__main__":
     pi = setup()
