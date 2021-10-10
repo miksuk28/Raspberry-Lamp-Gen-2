@@ -22,7 +22,7 @@ def _change_state(r, g, b):
 
 
 def _set_led(r, g, b):
-    colors = [r, g, b]
+    colors = (r, g, b)
 
     for i in range(len(colors)):
         if colors[i] > 255:
@@ -68,7 +68,7 @@ def set_led():
 
         if ops.validate(("red", "green", "blue"), data):
             #_set_led(data["red"], data["green"], data["blue"])
-            fade(current_state, {"red": data["red"], "green": data["green"], "blue": data["blue"]}, 1)
+            fade(current_state, {"red": data["red"], "green": data["green"], "blue": data["blue"]}, 10)
 
             return jsonify({"message": "LEDs changed"})
 
