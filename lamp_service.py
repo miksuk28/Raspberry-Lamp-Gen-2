@@ -16,9 +16,9 @@ def setup():
 
 
 def _change_state(r, g, b):
-    current_state["red"] = r
-    current_state["green"] = g
-    current_state["blue"] = b
+    current_state["red"] = str(r)
+    current_state["green"] = str(g)
+    current_state["blue"] = str(b)
 
 
 def _set_led(r, g, b):
@@ -39,16 +39,20 @@ def _set_led(r, g, b):
 
 
 def fade(start, end, fade_time, steps=255):
-    r_step = (end["red"] - start["red"]) / steps
+    r_step = (end["red"] -   start["red"])   / steps
     g_step = (end["green"] - start["green"]) / steps
-    b_step = (end["blue"] - start["blue"]) / steps
+    b_step = (end["blue"] -  start["blue"])  / steps
 
     step_time = fade_time / steps
 
+    _r = start["red"]
+    _g = start["green"]
+    _b = start["green"]
+
     for i in range(steps):
-        _r = abs((r_step * i))
-        _g = abs((g_step * i))
-        _b = abs((b_step * i))
+        _r += r_step
+        _g += g_step
+        _b += b_step
 
         print(_r, _g, _b)
         _set_led(_r, _g, _b)
