@@ -30,9 +30,9 @@ def set_led(r, g, b):
         
 
 def fade(start, end, fade_time, steps=255):
-    step_R = end[0] - start[0] / steps
-    step_G = end[1] - start[1] / steps
-    step_B = end[2] - start[2] / steps
+    step_R = (end[0] - start[0]) / steps
+    step_G = (end[1] - start[1]) / steps
+    step_B = (end[2] - start[2]) / steps
 
     r = int(start[0])
     g = int(start[1])
