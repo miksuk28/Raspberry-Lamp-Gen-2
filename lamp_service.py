@@ -67,6 +67,8 @@ def fade(start, end, fade_time, steps=255):
 def create_fade_thread(start, end, fade_time, steps=255):
     print(lamp_thread_busy)
     if not lamp_thread_busy:
+        global fade_thread
+
         fade_thread = Thread(target=fade, args=(start, (end[0], end[1], end[2]), fade_time, steps))
         fade_thread.start()
 
@@ -103,6 +105,19 @@ def get_colour():
         return jsonify(data), 200
     else:
         abort(405)
+
+@app.route("/stop_fade", methods=["POST"])
+def stop_fading():
+    if request.method == "POST":
+        if not lamp_thread_busy:
+            return jsonify({"message": "Thread is not running: nothing to stop"}), 412
+        else:
+            fade_thread.kill()
+            print("Fading thread killed")
+            return jsonify({"message": "Fading thread has been killed", "red": current_state[0], "green": current_state[1], "blue": current_state[2]})
+    else:
+        abort(405)
+
 
 if __name__ == "__main__":
     pi = setup()
