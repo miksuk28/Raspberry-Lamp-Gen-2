@@ -83,7 +83,7 @@ def set_led_endpoint():
             #fade(current_state, (data["red"], data["green"], data["blue"]), data["fade_time"])
 
             if create_fade_thread(current_state, (data["red"], data["green"], data["blue"]), data["fade_time"]):
-                return jsonify({"message": "LEDs changed"})
+                return jsonify({"message": "LEDs changing"})
             else:
                 abort(503, {"message": "Fading already in progress"})
 
