@@ -121,5 +121,5 @@ def stop_fading():
 
 if __name__ == "__main__":
     pi = setup()
-    fade((255,0,0), (0,0,0), 1)
+    fade((0,255,0), (0,0,0), 1)
     app.run(debug=True, host="0.0.0.0", port=6969)
