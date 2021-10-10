@@ -9,7 +9,7 @@ current_state = {"red": 0, "green": 0, "blue": 0}
 
 
 def setup():
-    import pigpio
+    import +
     pi = pigpio.pi()
 
     return pi
@@ -46,9 +46,9 @@ def fade(start, end, fade_time, steps=255):
     step_time = fade_time / steps
 
     for i in range(steps):
-        _r = start["red"] + (r_step * i)
-        _g = start["green"] + (g_step * i)
-        _b = start["blue"] + (b_step * i)
+        _r = abs(start["red"] + (r_step * i))
+        _g = abs(start["green"] + (g_step * i))
+        _b = abs(start["blue"] + (b_step * i))
 
         print(_r, _g, _b)
         _set_led(_r, _g, _b)
