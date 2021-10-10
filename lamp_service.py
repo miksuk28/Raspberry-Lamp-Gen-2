@@ -71,4 +71,5 @@ def set_led():
 
 if __name__ == "__main__":
     pi = setup()
+    _set_led(255,255,255)
     app.run(debug=True, host="0.0.0.0", port=6969)
