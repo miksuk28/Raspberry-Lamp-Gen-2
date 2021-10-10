@@ -15,8 +15,14 @@ def setup():
     return pi
 
 
+def _change_state(r, g, b):
+    current_state["red"] = r
+    current_state["green"] = g
+    current_state["blue"] = b
+
+
 def _set_led(r, g, b):
-    current_state = {"red": r, "green": g, "blue": b}
+    _change_state(r, g, b)
 
     pi.set_PWM_dutycycle(pins["r"], r)
     pi.set_PWM_dutycycle(pins["g"], g)
