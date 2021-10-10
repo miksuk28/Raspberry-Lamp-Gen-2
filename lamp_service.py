@@ -16,9 +16,9 @@ def setup():
 
 
 def _change_state(r, g, b):
-    current_state["red"] = str(r)
-    current_state["green"] = str(g)
-    current_state["blue"] = str(b)
+    current_state["red"] = int(r)
+    current_state["green"] = int(g)
+    current_state["blue"] = int(b)
 
 
 def _set_led(r, g, b):
