@@ -1,4 +1,3 @@
-import threading
 from flask import Flask, json, request, jsonify, abort
 from threading import Timer, Thread
 import operations as ops
@@ -31,6 +30,7 @@ def set_led(r, g, b):
         
 
 def fade(start, end, fade_time, steps=255):
+    global lamp_thread_busy
     lamp_thread_busy = True
 
     if start == end:
