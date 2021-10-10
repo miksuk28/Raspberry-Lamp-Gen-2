@@ -57,6 +57,10 @@ def fade(start, end, fade_time, steps=255):
         time.sleep(step_time)
 
 
+def create_fade_thread(start, end, fade_time, steps=255):
+    fade_thread = Thread(target=fade, args=(start, (end[0], end[1], end[2]), fade_time, steps))
+    fade_thread.start()
+
 app = Flask(__name__)
 
 
@@ -69,8 +73,7 @@ def set_led_endpoint():
             #_set_led(data["red"], data["green"], data["blue"])
             #fade(current_state, (data["red"], data["green"], data["blue"]), data["fade_time"])
 
-            fade_thread = Thread(target=fade, args=(current_state, (data["red"], data["green"], data["blue"]), data["fade_time"],))
-            fade_thread.start()
+            create_fade_thread(current_state, (data["red"], data["green"], data["blue"]), data["fade_time"])
 
             return jsonify({"message": "LEDs changed"})
 
