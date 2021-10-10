@@ -41,6 +41,7 @@ def fade(start, end, fade_time, steps=255):
         _g = start["green"] + (g_step * i)
         _b = start["blue"] + (b_step * i)
 
+        print(_r, _g, _b)
         _set_led(_r, _g, _b)
 
         time.sleep(step_time)
