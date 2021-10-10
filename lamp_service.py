@@ -61,9 +61,9 @@ def set_led_endpoint():
     if request.method == "POST":
         data = request.get_json()
 
-        if ops.validate(("red", "green", "blue"), data):
+        if ops.validate(("red", "green", "blue", "fade_time"), data):
             #_set_led(data["red"], data["green"], data["blue"])
-            fade(current_state, (data["red"], data["green"], data["blue"]), 1)
+            fade(current_state, (data["red"], data["green"], data["blue"]), data["fade_time"])
 
             return jsonify({"message": "LEDs changed"})
 
