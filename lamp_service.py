@@ -44,6 +44,8 @@ def fade(start, end, fade_time, steps=255):
         _set_led(_r, _g, _b)
 
         time.sleep(step_time)
+    
+    print(current_state)
         
 
 app = Flask(__name__)
