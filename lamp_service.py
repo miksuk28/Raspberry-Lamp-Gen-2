@@ -24,7 +24,7 @@ def _change_state(r, g, b):
 def _set_led(r, g, b):
     colors = (r, g, b)
 
-    for i in len(colors):
+    for i in range(colors):
         if colors[i] > 255:
             colors[i] = 255
         elif colors[i] < 0:
