@@ -1,88 +1,6 @@
 from flask import Flask, json, request, jsonify, abort
-from threading import Timer, Thread
 import operations as ops
 
-import time
-
-debug = True
-
-pins = {"r": 17, "g": 22, "b": 24, "btn": 27}
-current_state = [0, 0, 0]
-lamp_thread_busy = False
-
-def setup():
-    if not debug:
-        import pigpio
-        pi = pigpio.pi()
-    else:
-        pi = "DEBUG"
-
-    return pi
-
-
-def change_state(r, g ,b):
-    current_state[0] = r
-    current_state[1] = g
-    current_state[2] = b
-
-
-def set_led(r, g, b):
-    change_state(r,g,b)
-
-    if not debug:
-        pi.set_PWM_dutycycle(pins["r"], r)
-        pi.set_PWM_dutycycle(pins["g"], g)
-        pi.set_PWM_dutycycle(pins["b"], b)
-    else:
-        print(f"{r}\t{g}\t{b}")
-        
-
-def fade(start, end, fade_time, steps=255):
-    global lamp_thread_busy
-    lamp_thread_busy = True
-
-    if start == end:
-        return
-
-    step_R = (end[0] - start[0]) / steps
-    step_G = (end[1] - start[1]) / steps
-    step_B = (end[2] - start[2]) / steps
-
-    r = int(start[0])
-    g = int(start[1])
-    b = int(start[2])
-
-    step_time = fade_time / steps
-
-    print(f"Step time: {step_time}")
-    print(f"Locked fading: {lamp_thread_busy}")
-    print(f"Fading: ({start[0]}, {start[1]}, {start[2]}) -> ({end[0]}, {end[1]}, {end[2]})")
-
-    for i in range(steps):
-        #print(f"{i}\t{r}\t{g}\t{b}")
-        set_led(r, g, b)
-
-        r += step_R
-        g += step_G
-        b += step_B
-
-        time.sleep(step_time)
-
-    print("Fading finished")
-    lamp_thread_busy = False
-
-
-def create_fade_thread(start, end, fade_time, steps=255):
-    print(lamp_thread_busy)
-    if not lamp_thread_busy:
-        global fade_thread
-
-        fade_thread = Thread(target=fade, args=(start, (end[0], end[1], end[2]), fade_time, steps))
-        fade_thread.start()
-
-        return True
-    else:
-        return False
 
 app = Flask(__name__)
 
@@ -94,40 +12,65 @@ def set_led_endpoint():
 
         if ops.validate(("red", "green", "blue", "fade_time"), data):
             #_set_led(data["red"], data["green"], data["blue"])
-            #fade(current_state, (data["red"], data["green"], data["blue"]), data["fade_time"])
+            #fade(ops.current_state, (data["red"], data["green"], data["blue"]), data["fade_time"])
+            if not ops.within_pwm_range((data["red"], data["green"], data["blue"])):
+                return jsonify({"message": "RGB range must be 0-255"}), 400
 
-            if create_fade_thread(current_state, (data["red"], data["green"], data["blue"]), data["fade_time"]):
+            if ops.create_fade_thread(ops.current_state, (data["red"], data["green"], data["blue"]), data["fade_time"]):
                 return jsonify({"message": "LEDs changing"})
             else:
-                abort(503, {"message": "Fading already in progress"})
+                return jsonify({"message": "Busy - Fading already in progress"})
 
         else:
-            abort(400, "Bad params")
+            return jsonify({"message": "Bad request"}), 400
     else:
-        abort(405)
+        print("I AM HERE")
+        return jsonify({"message": "Method now allowed - Use POST"}), 405
 
-@app.route("/get_colour", methods=["GET"])
+
+@app.route("/fade", methods=["POST"])
+def fade_between_endpoint():
+    data = request.get_json()
+
+    if request.method == "POST":
+        if ops.validate(("red_start", "green_start", "blue_start", "red_end", "green_end", "blue_end", "fade_time"), data):
+            if not ops.within_pwm_range((data["red_start"], data["green_start"], data["blue_start"], data["red_end"], data["green_end"], data["blue_end"])):
+                return jsonify({"message": "RGB range range must be 0-255"}), 400
+            else:
+                if ops.create_fade_thread((data["red_start"], data["green_start"], data["blue_start"]), (data["red_end"], data["green_end"], data["blue_end"]), data["fade_time"]):
+                    return jsonify({"message": "LEDs changing"})
+                else:
+                    return jsonify({"message": "Busy - Fading already in progress"}), 503
+
+        else:
+            return jsonify({"message": "Bad request"}), 400
+    else:
+        return jsonify({"message": "Method now alowed - Use POST"})
+
+
+@app.route("/get_color", methods=["GET"])
 def get_colour():
     if request.method == "GET":
-        data = {"red": current_state[0], "green": current_state[1], "blue": current_state[2]}
+        data = {"red": ops.current_state[0], "green": ops.current_state[1], "blue": ops.current_state[2]}
         return jsonify(data), 200
     else:
-        abort(405)
+        return jsonify({"message": "Method not allowed - Use GET"}), 405
+
 
 @app.route("/stop_fade", methods=["POST"])
 def stop_fading():
     if request.method == "POST":
-        if not lamp_thread_busy:
+        if not ops.lamp_thread_busy:
             return jsonify({"message": "Thread is not running: nothing to stop"}), 412
         else:
-            fade_thread.kill()
+            ops.fade_thread.kill()
             print("Fading thread killed")
-            return jsonify({"message": "Fading thread has been killed", "red": current_state[0], "green": current_state[1], "blue": current_state[2]})
+            return jsonify({"message": "Fading thread has been killed", "red": ops.current_state[0], "green": ops.current_state[1], "blue": ops.current_state[2]})
     else:
-        abort(405)
+        return jsonify({"Method not allowed - Use POST"}), 405
 
 
 if __name__ == "__main__":
-    pi = setup()
-    fade((0,255,0), (0,0,0), 1)
-    app.run(debug=True, host="0.0.0.0", port=6969)
+    pi = ops.setup()
+    #ops.fade((0,255,0), (0,0,0), 1)
+    app.run(debug=True, host="127.0.0.1", port=6969)
