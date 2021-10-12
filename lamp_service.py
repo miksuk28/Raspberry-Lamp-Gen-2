@@ -4,13 +4,18 @@ import operations as ops
 
 import time
 
+debug = True
+
 pins = {"r": 17, "g": 22, "b": 24, "btn": 27}
 current_state = [0, 0, 0]
 lamp_thread_busy = False
 
 def setup():
-    import pigpio
-    pi = pigpio.pi()
+    if not debug:
+        import pigpio
+        pi = pigpio.pi()
+    else:
+        pi = "DEBUG"
 
     return pi
 
@@ -24,9 +29,12 @@ def change_state(r, g ,b):
 def set_led(r, g, b):
     change_state(r,g,b)
 
-    pi.set_PWM_dutycycle(pins["r"], r)
-    pi.set_PWM_dutycycle(pins["g"], g)
-    pi.set_PWM_dutycycle(pins["b"], b)
+    if not debug:
+        pi.set_PWM_dutycycle(pins["r"], r)
+        pi.set_PWM_dutycycle(pins["g"], g)
+        pi.set_PWM_dutycycle(pins["b"], b)
+    else:
+        print(f"{r}\t{g}\t{b}")
         
 
 def fade(start, end, fade_time, steps=255):
