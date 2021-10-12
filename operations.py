@@ -2,22 +2,27 @@
 
 import time
 from threading import Timer, Thread
+import os
 
 from validation import *
-
-debug = True
 
 pins = {"r": 17, "g": 22, "b": 24, "btn": 27}
 current_state = [0, 0, 0]
 lamp_thread_busy = False
-
+debug = None
 
 def setup():
-    if not debug:
-        import pigpio
-        pi = pigpio.pi()
-    else:
+    try:
+        if os.uname()[4].startswith("arm"):
+            import pigpio
+            pi = pigpio.pi()
+            debug = False
+            print("Running on ARM")
+    except:
         pi = "DEBUG"
+        debug = True
+        print("Not running in Raspi: Enabling debug mode")
+
 
     return pi
 
