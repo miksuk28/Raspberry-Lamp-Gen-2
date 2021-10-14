@@ -12,6 +12,7 @@ lamp_thread_busy = False
 debug = None
 
 def setup():
+    global debug
     try:
         if os.uname()[4].startswith("arm"):
             import pigpio
@@ -34,6 +35,7 @@ def change_state(r, g ,b):
 
 
 def set_led(r, g, b):
+    global debug
     change_state(r,g,b)
 
     if not debug:
