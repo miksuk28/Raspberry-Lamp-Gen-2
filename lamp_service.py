@@ -71,6 +71,6 @@ def stop_fading():
 
 
 if __name__ == "__main__":
-    pi = ops.setup()
+    ops.setup()
     #ops.fade((0,255,0), (0,0,0), 1)
     app.run(debug=True, host="127.0.0.1", port=6969)
