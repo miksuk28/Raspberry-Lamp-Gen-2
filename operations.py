@@ -49,6 +49,7 @@ def set_led(r, g, b):
 
 def wait_for_exit(wait_time, check_time=0):
     global exit_thread
+    global lamp_thread_busy
     start_time = time.time()
 
     while True:
@@ -56,6 +57,7 @@ def wait_for_exit(wait_time, check_time=0):
 
         if exit_thread:
             exit_thread = False
+            lamp_thread_busy = False
             print("Killing thread")
             raise SystemExit
 
