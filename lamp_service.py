@@ -63,9 +63,8 @@ def stop_fading():
         if not ops.lamp_thread_busy:
             return jsonify({"message": "Thread is not running: nothing to stop"}), 412
         else:
-            ops.fade_thread.kill()
-            print("Fading thread killed")
-            return jsonify({"message": "Fading thread has been killed", "red": ops.current_state[0], "green": ops.current_state[1], "blue": ops.current_state[2]})
+            ops.kill_thread()
+            return jsonify({"message": "Fading thread has been killed", "red": int(ops.current_state[0]), "green": int(ops.current_state[1]), "blue": int(ops.current_state[2])})
     else:
         return jsonify({"Method not allowed - Use POST"}), 405
 

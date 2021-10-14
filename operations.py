@@ -1,7 +1,7 @@
 ### FUNCTIONS, NON ENDPOINTS ###
 
 import time
-from threading import Timer, Thread
+from threading import Thread
 import os
 
 from validation import *
@@ -10,6 +10,7 @@ pins = {"r": 17, "g": 22, "b": 24, "btn": 27}
 current_state = [0, 0, 0]
 lamp_thread_busy = False
 debug = None
+exit_thread = False
 
 def setup():
     global debug
@@ -46,6 +47,27 @@ def set_led(r, g, b):
         print(f"{r}\t{g}\t{b}")
         
 
+def wait_for_exit(wait_time, check_time=0):
+    global exit_thread
+    start_time = time.time()
+
+    while True:
+        time.sleep(check_time)
+
+        if exit_thread:
+            exit_thread = False
+            print("Killing thread")
+            raise SystemExit
+
+        if time.time() - start_time >= wait_time:
+            break
+
+
+def kill_thread():
+    global exit_thread
+    exit_thread = True
+
+
 def fade(start, end, fade_time, steps=255):
     global lamp_thread_busy
     lamp_thread_busy = True
@@ -63,6 +85,13 @@ def fade(start, end, fade_time, steps=255):
 
     step_time = fade_time / steps
 
+    if fade_time >= 15:
+        check_time = 0.01
+    else:
+        check_time = 0
+
+    print(f"Step time: {step_time}")
+
     print(f"Step time: {step_time}")
     print(f"Locked fading: {lamp_thread_busy}")
     print(f"Fading: ({start[0]}, {start[1]}, {start[2]}) -> ({end[0]}, {end[1]}, {end[2]})")
@@ -75,7 +104,8 @@ def fade(start, end, fade_time, steps=255):
         g += step_G
         b += step_B
 
-        time.sleep(step_time)
+        #time.sleep(step_time)
+        wait_for_exit(step_time, check_time)
 
     print("Fading finished")
     lamp_thread_busy = False
