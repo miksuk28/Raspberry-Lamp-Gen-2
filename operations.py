@@ -44,7 +44,7 @@ def set_led(r, g, b):
         pi.set_PWM_dutycycle(pins["g"], g)
         pi.set_PWM_dutycycle(pins["b"], b)
     else:
-        print(f"{r}\t{g}\t{b}")
+        pass #print(f"{r}\t{g}\t{b}")
 
 
 def kill_thread():
@@ -54,6 +54,11 @@ def kill_thread():
 
 def fade_timer(step_r, step_g, step_b, time_between_steps, i=0, steps=255):
     start_time = time.time()
+
+    i += 1
+    if not (i >= steps):
+        timer = threading.Timer(time_between_steps, fade_timer, args=(step_r, step_g, step_b, (time_between_steps - (start_time - time.time())), i, steps))
+        timer.start()
 
     global lamp_thread_busy, exit_thread
     global cur_r, cur_g, cur_b
@@ -67,18 +72,13 @@ def fade_timer(step_r, step_g, step_b, time_between_steps, i=0, steps=255):
             print(f"Fading took {time.time() - fade_start} seconds")
         return
     else:
-        i += 1
-        print(f"i = {i}")
+        #print(f"i = {i}")
         cur_r += step_r
         cur_g += step_g
         cur_b += step_b
 
         set_led(cur_r, cur_g, cur_b)
         
-        print(f"Actual step time: {time.time() - start_time}")
-        timer = threading.Timer(time_between_steps, fade_timer, args=(step_r, step_g, step_b, (time_between_steps - (start_time - time.time())), i, steps))
-        timer.start()
-
 
 def fade(start, end, fade_time, steps=255):
     global lamp_thread_busy
