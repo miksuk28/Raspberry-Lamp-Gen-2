@@ -1,7 +1,7 @@
 ### FUNCTIONS, NON ENDPOINTS ###
 
 import time
-from threading import Thread
+import threading
 import os
 
 from validation import *
@@ -45,24 +45,6 @@ def set_led(r, g, b):
         pi.set_PWM_dutycycle(pins["b"], b)
     else:
         print(f"{r}\t{g}\t{b}")
-        
-
-def wait_for_exit(wait_time, check_time=0):
-    global exit_thread
-    global lamp_thread_busy
-    start_time = time.time()
-
-    while True:
-        time.sleep(check_time)
-
-        if exit_thread:
-            exit_thread = False
-            lamp_thread_busy = False
-            print("Killing thread")
-            raise SystemExit
-
-        if time.time() - start_time >= wait_time:
-            break
 
 
 def kill_thread():
@@ -70,8 +52,38 @@ def kill_thread():
     exit_thread = True
 
 
+def fade_timer(step_r, step_g, step_b, time_between_steps, i=0, steps=255):
+    global lamp_thread_busy
+    global cur_r, cur_g, cur_b
+    if i >= steps:
+        print("Fading finished")
+
+        lamp_thread_busy = False
+
+        if debug:
+            print(f"Fading took {time.time() - fade_start} seconds")
+        return
+    else:
+        i += 1
+        timer = threading.Timer(time_between_steps, fade_timer, args=(step_r, step_g, step_b, time_between_steps, i, steps))
+
+        cur_r += step_r
+        cur_g += step_g
+        cur_b += step_b
+
+        set_led(cur_r, cur_g, cur_b)
+
+        timer.start()
+
+
 def fade(start, end, fade_time, steps=255):
     global lamp_thread_busy
+    global cur_r, cur_g, cur_b
+
+    if debug:
+        global fade_start
+        fade_start = time.time()
+
     lamp_thread_busy = True
 
     if start == end:
@@ -81,36 +93,20 @@ def fade(start, end, fade_time, steps=255):
     step_G = (end[1] - start[1]) / steps
     step_B = (end[2] - start[2]) / steps
 
-    r = int(start[0])
-    g = int(start[1])
-    b = int(start[2])
+    cur_r = start[0]
+    cur_g = start[1]
+    cur_b = start[2]
 
     step_time = fade_time / steps
 
-    if fade_time >= 15:
-        check_time = 0.01
-    else:
-        check_time = 0
-
+    fade_timer(step_R, step_G, step_B, step_time)
+    '''
     print(f"Step time: {step_time}")
 
     print(f"Step time: {step_time}")
     print(f"Locked fading: {lamp_thread_busy}")
     print(f"Fading: ({start[0]}, {start[1]}, {start[2]}) -> ({end[0]}, {end[1]}, {end[2]})")
-
-    for i in range(steps):
-        #print(f"{i}\t{r}\t{g}\t{b}")
-        set_led(r, g, b)
-
-        r += step_R
-        g += step_G
-        b += step_B
-
-        #time.sleep(step_time)
-        wait_for_exit(step_time, check_time)
-
-    print("Fading finished")
-    lamp_thread_busy = False
+    '''
 
 
 def create_fade_thread(start, end, fade_time, steps=255):
@@ -118,8 +114,7 @@ def create_fade_thread(start, end, fade_time, steps=255):
     if not lamp_thread_busy:
         global fade_thread
 
-        fade_thread = Thread(target=fade, args=(start, (end[0], end[1], end[2]), fade_time, steps))
-        fade_thread.start()
+        fade(start, end, fade_time, steps)
 
         return True
     else:
