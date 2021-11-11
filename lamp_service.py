@@ -3,6 +3,8 @@ import operations as ops
 
 
 app = Flask(__name__)
+# Flask config
+app.config["JSON_SORT_KEYS"] = False
 
 
 @app.route("/set_led", methods=["POST"])
@@ -11,8 +13,6 @@ def set_led_endpoint():
         data = request.get_json()
 
         if ops.validate(("red", "green", "blue", "fade_time"), data):
-            #_set_led(data["red"], data["green"], data["blue"])
-            #fade(ops.current_state, (data["red"], data["green"], data["blue"]), data["fade_time"])
             if not ops.within_pwm_range((data["red"], data["green"], data["blue"])):
                 return jsonify({"message": "RGB range must be 0-255"}), 400
 
@@ -24,7 +24,6 @@ def set_led_endpoint():
         else:
             return jsonify({"message": "Bad request"}), 400
     else:
-        print("I AM HERE")
         return jsonify({"message": "Method now allowed - Use POST"}), 405
 
 
@@ -71,5 +70,4 @@ def stop_fading():
 
 if __name__ == "__main__":
     pi = ops.setup()
-    #ops.fade((0,255,0), (0,0,0), 1)
     app.run(debug=True, host="127.0.0.1", port=6969)

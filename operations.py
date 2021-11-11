@@ -23,7 +23,7 @@ def setup():
     except:
         pi = "DEBUG"
         debug = True
-        print("Not running in Raspi: Enabling debug mode")
+        print("Not running on Raspi: Enabling debug mode")
 
 
     return pi
@@ -53,26 +53,30 @@ def kill_thread():
 
 
 def fade_timer(step_r, step_g, step_b, time_between_steps, i=0, steps=255):
-    global lamp_thread_busy
+    start_time = time.time()
+
+    global lamp_thread_busy, exit_thread
     global cur_r, cur_g, cur_b
-    if i >= steps:
+    if i >= steps or exit_thread:
         print("Fading finished")
 
         lamp_thread_busy = False
+        exit_thread = False
 
         if debug:
             print(f"Fading took {time.time() - fade_start} seconds")
         return
     else:
         i += 1
-        timer = threading.Timer(time_between_steps, fade_timer, args=(step_r, step_g, step_b, time_between_steps, i, steps))
-
+        print(f"i = {i}")
         cur_r += step_r
         cur_g += step_g
         cur_b += step_b
 
         set_led(cur_r, cur_g, cur_b)
-
+        
+        print(f"Actual step time: {time.time() - start_time}")
+        timer = threading.Timer(time_between_steps, fade_timer, args=(step_r, step_g, step_b, (time_between_steps - (start_time - time.time())), i, steps))
         timer.start()
 
 
@@ -98,6 +102,8 @@ def fade(start, end, fade_time, steps=255):
     cur_b = start[2]
 
     step_time = fade_time / steps
+
+    print(f"Step time: {step_time}")
 
     fade_timer(step_R, step_G, step_B, step_time)
     '''
