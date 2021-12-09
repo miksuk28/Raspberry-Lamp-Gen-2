@@ -20,13 +20,17 @@ def setup():
             pi = pigpio.pi()
             debug = False
             print("Running on ARM")
+
+            return pi
     except:
         pi = "DEBUG"
         debug = True
         print("Not running on Raspi: Enabling debug mode")
+    finally:
+        debug = True
 
 
-    return pi
+    return False
 
 
 def change_state(r, g ,b):
